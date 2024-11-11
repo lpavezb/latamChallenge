@@ -1,6 +1,15 @@
+import os
 import fastapi
 
+from dotenv import load_dotenv
+
+load_dotenv()
+DATA_PATH = os.environ.get("DATA_PATH", "../data/data.csv")
+THRESHOLD_IN_MINUTES = int(os.environ.get("THRESHOLD_IN_MINUTES", 15))
+
+
 app = fastapi.FastAPI()
+
 
 @app.get("/health", status_code=200)
 async def get_health() -> dict:

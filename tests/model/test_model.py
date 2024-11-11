@@ -1,9 +1,13 @@
+import os
 import unittest
 import pandas as pd
 
+from dotenv import load_dotenv
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from challenge.model import DelayModel
+
+load_dotenv("../..")
 
 class TestModel(unittest.TestCase):
 
@@ -28,7 +32,8 @@ class TestModel(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.model = DelayModel()
-        self.data = pd.read_csv(filepath_or_buffer="../data/data.csv")
+        data_path = os.environ.get("DATA_PATH", "")
+        self.data = pd.read_csv(filepath_or_buffer=data_path)
         
 
     def test_model_preprocess_for_training(
@@ -63,6 +68,7 @@ class TestModel(unittest.TestCase):
     def test_model_fit(
         self
     ):
+        
         features, target = self.model.preprocess(
             data=self.data,
             target_column="delay"
@@ -80,7 +86,7 @@ class TestModel(unittest.TestCase):
         )
 
         report = classification_report(target_validation, predicted_target, output_dict=True)
-        
+        print(report)
         assert report["0"]["recall"] < 0.60
         assert report["0"]["f1-score"] < 0.70
         assert report["1"]["recall"] > 0.60
@@ -90,9 +96,11 @@ class TestModel(unittest.TestCase):
     def test_model_predict(
         self
     ):
-        features = self.model.preprocess(
-            data=self.data
+        features, target = self.model.preprocess(
+            data=self.data,
+            target_column="delay"
         )
+        self.model.fit(features, target)
 
         predicted_targets = self.model.predict(
             features=features
