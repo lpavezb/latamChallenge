@@ -89,22 +89,20 @@ class DelayModel:
             (List[int]): predicted targets.
         """
         if not self.is_loaded:
-            print("loading model...")
             self.load_model()
-            print("loading model...ok")
         return self._model.predict(features).tolist()
 
     def save_model(self):
-        self._model.save_model("0001.model")
+        self._model.save_model(MODEL_PATH)
     
     def load_model(self):
-        if not os.path.exists("0001.model"):
+        if not os.path.exists(MODEL_PATH):
             data = pd.read_csv(filepath_or_buffer=DATA_PATH)
             features, target = self.preprocess(data, "delay")
             self.fit(features, target)
             self.save_model()        
         else:
-            self._model.load_model("0001.model")
+            self._model.load_model(MODEL_PATH)
 
 if __name__ == "__main__":
     model = DelayModel()
