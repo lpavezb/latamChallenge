@@ -64,11 +64,23 @@ class TestModel(unittest.TestCase):
         assert features.shape[1] == len(self.FEATURES_COLS)
         assert set(features.columns) == set(self.FEATURES_COLS)
 
+        data = {
+            "OPERA": ["Aerolineas Argentinas"], 
+            "TIPOVUELO": ["N"], 
+            "MES": [3]
+        }
+        df_data = pd.DataFrame.from_dict(data)
+        features = self.model.preprocess(
+            data=df_data
+        )
+
+        assert isinstance(features, pd.DataFrame)
+        assert features.shape[1] == len(self.FEATURES_COLS)
+        assert set(features.columns) == set(self.FEATURES_COLS)
 
     def test_model_fit(
         self
-    ):
-        
+    ):        
         features, target = self.model.preprocess(
             data=self.data,
             target_column="delay"
@@ -86,7 +98,7 @@ class TestModel(unittest.TestCase):
         )
 
         report = classification_report(target_validation, predicted_target, output_dict=True)
-        print(report)
+
         assert report["0"]["recall"] < 0.60
         assert report["0"]["f1-score"] < 0.70
         assert report["1"]["recall"] > 0.60
@@ -96,11 +108,9 @@ class TestModel(unittest.TestCase):
     def test_model_predict(
         self
     ):
-        features, target = self.model.preprocess(
+        features = self.model.preprocess(
             data=self.data,
-            target_column="delay"
         )
-        self.model.fit(features, target)
 
         predicted_targets = self.model.predict(
             features=features

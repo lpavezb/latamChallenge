@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 DATA_PATH = os.environ.get("DATA_PATH", "../data/data.csv")
+MODEL_PATH = os.environ.get("MODEL_PATH", "../0001.model")
 THRESHOLD_IN_MINUTES = int(os.environ.get("THRESHOLD_IN_MINUTES", 15))
 
 
