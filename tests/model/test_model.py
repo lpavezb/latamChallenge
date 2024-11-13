@@ -1,13 +1,10 @@
-import os
 import unittest
 import pandas as pd
 
-from dotenv import load_dotenv
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from challenge.model import DelayModel
-
-load_dotenv("../..")
+from challenge.api import DATA_PATH
 
 class TestModel(unittest.TestCase):
 
@@ -32,8 +29,7 @@ class TestModel(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.model = DelayModel()
-        data_path = os.environ.get("DATA_PATH", "")
-        self.data = pd.read_csv(filepath_or_buffer=data_path)
+        self.data = pd.read_csv(filepath_or_buffer=DATA_PATH)
         
 
     def test_model_preprocess_for_training(
