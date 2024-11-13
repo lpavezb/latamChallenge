@@ -1,0 +1,1 @@
+from challenge.models.model import Flights

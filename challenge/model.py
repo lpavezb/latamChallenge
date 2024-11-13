@@ -1,19 +1,38 @@
+import os
+import numpy as np
 import pandas as pd
+import xgboost as xgb
 
 from typing import Tuple, Union, List
+
+from challenge.utils import get_min_diff
+from challenge.api import THRESHOLD_IN_MINUTES, DATA_PATH, MODEL_PATH
 
 class DelayModel:
 
     def __init__(
         self
     ):
-        self._model = None # Model should be saved in this attribute.
+        self._model = xgb.XGBClassifier(random_state=1, learning_rate=0.01, scale_pos_weight=4.4402380952380955) # Model should be saved in this attribute.
+        self.feature_cols = [
+            "OPERA_Latin American Wings", 
+            "MES_7",
+            "MES_10",
+            "OPERA_Grupo LATAM",
+            "MES_12",
+            "TIPOVUELO_I",
+            "MES_4",
+            "MES_11",
+            "OPERA_Sky Airline",
+            "OPERA_Copa Air"
+        ]
+        self.is_loaded = False
 
     def preprocess(
         self,
         data: pd.DataFrame,
         target_column: str = None
-    ) -> Union(Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame):
+    ) -> Union[Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame]:
         """
         Prepare raw data for training or predict.
 
@@ -26,7 +45,20 @@ class DelayModel:
             or
             pd.DataFrame: features.
         """
-        return
+
+        features = pd.concat([
+            pd.get_dummies(data['OPERA'], prefix = 'OPERA'),
+            pd.get_dummies(data['TIPOVUELO'], prefix = 'TIPOVUELO'), 
+            pd.get_dummies(data['MES'], prefix = 'MES')], 
+            axis = 1
+        )
+        features = features.reindex(columns=self.feature_cols, fill_value=0)
+        if target_column:
+            data['min_diff'] = data.apply(get_min_diff, axis = 1)
+            data['delay'] = np.where(data['min_diff'] > THRESHOLD_IN_MINUTES, 1, 0)
+            target = data.loc[:, [target_column]]
+            return features, target
+        return features
 
     def fit(
         self,
@@ -40,7 +72,8 @@ class DelayModel:
             features (pd.DataFrame): preprocessed data.
             target (pd.DataFrame): target.
         """
-        return
+        self._model.fit(features, target)
+        self.is_loaded = True
 
     def predict(
         self,
@@ -55,4 +88,26 @@ class DelayModel:
         Returns:
             (List[int]): predicted targets.
         """
-        return
+        if not self.is_loaded:
+            self.load_model()
+        return self._model.predict(features).tolist()
+
+    def save_model(self):
+        self._model.save_model(MODEL_PATH)
+    
+    def load_model(self):
+        if not os.path.exists(MODEL_PATH):
+            data = pd.read_csv(filepath_or_buffer=DATA_PATH)
+            features, target = self.preprocess(data, "delay")
+            self.fit(features, target)
+            self.save_model()        
+        else:
+            self._model.load_model(MODEL_PATH)
+
+if __name__ == "__main__":
+    model = DelayModel()
+    data_path = "../data/data.csv"
+    data = pd.read_csv(filepath_or_buffer=data_path)
+    features, target = model.preprocess(data, "delay")
+    model.fit(features, target)
+    model.save_model()    

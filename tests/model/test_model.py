@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from challenge.model import DelayModel
+from challenge.api import DATA_PATH
 
 class TestModel(unittest.TestCase):
 
@@ -28,7 +29,7 @@ class TestModel(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.model = DelayModel()
-        self.data = pd.read_csv(filepath_or_buffer="../data/data.csv")
+        self.data = pd.read_csv(filepath_or_buffer=DATA_PATH)
         
 
     def test_model_preprocess_for_training(
@@ -59,10 +60,23 @@ class TestModel(unittest.TestCase):
         assert features.shape[1] == len(self.FEATURES_COLS)
         assert set(features.columns) == set(self.FEATURES_COLS)
 
+        data = {
+            "OPERA": ["Aerolineas Argentinas"], 
+            "TIPOVUELO": ["N"], 
+            "MES": [3]
+        }
+        df_data = pd.DataFrame.from_dict(data)
+        features = self.model.preprocess(
+            data=df_data
+        )
+
+        assert isinstance(features, pd.DataFrame)
+        assert features.shape[1] == len(self.FEATURES_COLS)
+        assert set(features.columns) == set(self.FEATURES_COLS)
 
     def test_model_fit(
         self
-    ):
+    ):        
         features, target = self.model.preprocess(
             data=self.data,
             target_column="delay"
@@ -80,7 +94,7 @@ class TestModel(unittest.TestCase):
         )
 
         report = classification_report(target_validation, predicted_target, output_dict=True)
-        
+
         assert report["0"]["recall"] < 0.60
         assert report["0"]["f1-score"] < 0.70
         assert report["1"]["recall"] > 0.60
@@ -91,7 +105,7 @@ class TestModel(unittest.TestCase):
         self
     ):
         features = self.model.preprocess(
-            data=self.data
+            data=self.data,
         )
 
         predicted_targets = self.model.predict(
