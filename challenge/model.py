@@ -5,8 +5,8 @@ import xgboost as xgb
 
 from typing import Tuple, Union, List
 
-from .utils import get_min_diff
-from .api import THRESHOLD_IN_MINUTES, DATA_PATH, MODEL_PATH
+from challenge.utils import get_min_diff
+from challenge.api import THRESHOLD_IN_MINUTES, DATA_PATH, MODEL_PATH
 
 class DelayModel:
 

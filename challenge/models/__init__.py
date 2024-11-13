@@ -1,1 +1,1 @@
-from .model import Flights
+from challenge.models.model import Flights

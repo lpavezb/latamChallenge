@@ -1,0 +1,11 @@
+services:
+  api:
+    container_name: delay_api
+    build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - ./.env:/api/.env
+      - ./data:/api/data
+    command: ["uvicorn", "challenge:app", "--host", "0.0.0.0", "--port", "8000"]
+    # command: ["sleep", "3600"]

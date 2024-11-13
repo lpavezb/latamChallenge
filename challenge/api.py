@@ -14,8 +14,8 @@ THRESHOLD_IN_MINUTES = int(os.environ.get("THRESHOLD_IN_MINUTES", 15))
 
 app = FastAPI()
 
-from .models import Flights
-from .model import DelayModel
+from challenge.models import Flights
+from challenge.model import DelayModel
 
 model = DelayModel()
 model.load_model()
