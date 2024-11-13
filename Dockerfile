@@ -12,3 +12,9 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY challenge/ /api/challenge/
+COPY ./.env /api/.env
+COPY ./data /api/data
+
+EXPOSE 8000
+
+CMD ["uvicorn", "challenge:app", "--host", "0.0.0.0", "--port", "8000"]
