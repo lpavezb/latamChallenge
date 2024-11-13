@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY challenge/ /api/challenge/
-COPY ./.env /api/.env
+COPY ./.docker_env /api/.env
 COPY ./data /api/data
 
 EXPOSE 8000
